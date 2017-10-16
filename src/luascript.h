@@ -447,13 +447,6 @@ class LuaScriptInterface
 		static int luaDoTargetCombatHealth(lua_State* L);
 
 		//
-		
-    // monster:setName(name, description)
-    static int luaMonsterSetName(lua_State* L);
- 
-    //setCreatureName(cid, newName, newDescription)
-    static int luaSetCreatureName(lua_State* L);		
-		
 		static int luaDoAreaCombatMana(lua_State* L);
 		static int luaDoTargetCombatMana(lua_State* L);
 
