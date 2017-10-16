@@ -1003,7 +1003,9 @@ void LuaScriptInterface::registerFunctions()
 
 	//sendGuildChannelMessage(guildId, type, message)
 	lua_register(luaState, "sendGuildChannelMessage", LuaScriptInterface::luaSendGuildChannelMessage);
-
+	
+    //setCreatureName(cid, newName, newDescription)
+    lua_register(luaState, "setCreatureName", LuaScriptInterface::luaSetCreatureName);
 #ifndef LUAJIT_VERSION
 	//bit operations for Lua, based on bitlib project release 24
 	//bit.bnot, bit.band, bit.bor, bit.bxor, bit.lshift, bit.rshift
@@ -2469,7 +2471,9 @@ void LuaScriptInterface::registerFunctions()
 
 	registerMethod("Monster", "selectTarget", LuaScriptInterface::luaMonsterSelectTarget);
 	registerMethod("Monster", "searchTarget", LuaScriptInterface::luaMonsterSearchTarget);
-
+	
+   // monster:setName(name, description)
+    registerMethod("Monster", "setName", LuaScriptInterface::luaMonsterSetName);
 	// Npc
 	registerClass("Npc", "Creature", LuaScriptInterface::luaNpcCreate);
 	registerMetaMethod("Npc", "__eq", LuaScriptInterface::luaUserdataCompare);
@@ -10540,6 +10544,48 @@ int LuaScriptInterface::luaMonsterSearchTarget(lua_State* L)
 	}
 	return 1;
 }
+
+int LuaScriptInterface::luaSetCreatureName(lua_State* L)
+{
+    // setCreatureName(cid, name, description)
+    std::string newDesc = getString(L, 3);
+    std::string newName = getString(L, 2);
+ 
+    Creature* creature = getCreature(L, 1);
+    if (!creature) {
+        reportErrorFunc(getErrorDesc(LUA_ERROR_CREATURE_NOT_FOUND));
+        pushBoolean(L, false);
+        return 1;
+    }
+    Monster* monster = (Monster*)creature;
+    monster->setName(newName);
+    monster->setDescription(newDesc);
+    monster->setStrDescription(newDesc);
+    lua_pushboolean(L, true);
+ 
+    return 1;
+}
+ 
+int LuaScriptInterface::luaMonsterSetName(lua_State* L)
+{
+    // monster:setName(name, description)
+    std::string newDesc = getString(L, 3);
+    std::string newName = getString(L, 2);
+ 
+    Monster* monster = getUserdata<Monster>(L, 1);
+    if (!monster) {
+        reportErrorFunc(getErrorDesc(LUA_ERROR_CREATURE_NOT_FOUND));
+        pushBoolean(L, false);
+        return 1;
+    }
+    monster->setName(newName);
+    monster->setDescription(newDesc);
+    monster->setStrDescription(newDesc);
+    lua_pushboolean(L, true);
+ 
+    return 1;
+}
+
 
 // Npc
 int LuaScriptInterface::luaNpcCreate(lua_State* L)

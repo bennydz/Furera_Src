@@ -40,6 +40,7 @@ enum TargetSearchType_t {
 class Monster final : public Creature
 {
 	public:
+	    std::string name, nameDescription, altStrDesc;
 		static Monster* createMonster(const std::string& name);
 		static int32_t despawnRange;
 		static int32_t despawnRadius;
@@ -67,15 +68,44 @@ class Monster final : public Creature
 		void removeList() final;
 		void addList() final;
 
-		const std::string& getName() const final {
-			return mType->name;
-		}
-		const std::string& getNameDescription() const final {
-			return mType->nameDescription;
-		}
-		std::string getDescription(int32_t) const final {
-			return strDescription + '.';
-		}
+
+        const std::string& getName() const final {
+            if (!name.empty()) {
+                return name;
+            }
+            return mType->name;
+        }		
+		
+		
+		
+
+		
+        const std::string& getNameDescription() const final {
+            if (nameDescription.empty()) {
+                return mType->nameDescription;
+            }
+            return nameDescription;
+        }		
+		
+
+		
+        std::string getDescription(int32_t) const final {
+            if (!altStrDesc.empty()) {
+                return altStrDesc + '.';
+            }
+            return strDescription + '.';
+        }		
+		
+        void setName(std::string n) {
+            name = n;
+        }
+        void setDescription(std::string desc) {
+            nameDescription = desc;
+        }
+        void setStrDescription(std::string altdesc) {
+            altStrDesc = altdesc;
+        }
+ 		
 
 		CreatureType_t getType() const final {
 			return CREATURETYPE_MONSTER;
