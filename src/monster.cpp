@@ -58,6 +58,9 @@ Monster::Monster(MonsterType* mType) :
 	hiddenHealth = mType->info.hiddenHealth;
 
 	// register creature events
+	
+	registerCreatureEvent("charms_runes");
+	
 	for (const std::string& scriptName : mType->info.scripts) {
 		if (!registerCreatureEvent(scriptName)) {
 			std::cout << "[Warning - Monster::Monster] Unknown event name: " << scriptName << std::endl;
