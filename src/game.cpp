@@ -6239,7 +6239,10 @@ bool Game::addUniqueItem(uint16_t uniqueId, Item* item)
 	return result.second;
 }
 
+void Game::removeUniqueItem(uint16_t uniqueId)
+{
 
+}
 
 bool Game::reload(ReloadTypes_t reloadType)
 {
