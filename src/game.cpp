@@ -6233,6 +6233,9 @@ Item* Game::getUniqueItem(uint16_t uniqueId)
 bool Game::addUniqueItem(uint16_t uniqueId, Item* item)
 {
 	auto result = uniqueItems.emplace(uniqueId, item);
+	if (!result.second) {
+		std::cout << "Duplicate unique id: " << uniqueId << std::endl;
+	}
 	return result.second;
 }
 
