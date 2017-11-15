@@ -6243,7 +6243,7 @@ void Game::removeUniqueItem(uint16_t uniqueId)
 {
 	auto it = uniqueItems.find(uniqueId);
 	if (it != uniqueItems.end()) {
-		uniqueItems.erase(it);
+
 	}
 }
 

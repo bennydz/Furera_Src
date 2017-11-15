@@ -6423,15 +6423,8 @@ int LuaScriptInterface::luaItemTransform(lua_State* L)
 
 int LuaScriptInterface::luaItemDecay(lua_State* L)
 {
-
 	// item:decay()
 	Item* item = getUserdata<Item>(L, 1);
-	
-	
-	    if (item && item->hasAttribute(ITEM_ATTRIBUTE_DECAYSTATE)) {
-        g_game.startDecay(item);
-    }	
-	
 	if (item) {
 		g_game.startDecay(item);
 		pushBoolean(L, true);
