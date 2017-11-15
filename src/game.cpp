@@ -6233,15 +6233,15 @@ Item* Game::getUniqueItem(uint16_t uniqueId)
 bool Game::addUniqueItem(uint16_t uniqueId, Item* item)
 {
 	auto result = uniqueItems.emplace(uniqueId, item);
-	if (!result.second) {
-		std::cout << "Duplicate unique id: " << uniqueId << std::endl;
-	}
 	return result.second;
 }
 
 void Game::removeUniqueItem(uint16_t uniqueId)
 {
-
+	auto it = uniqueItems.find(uniqueId);
+	if (it != uniqueItems.end()) {
+		uniqueItems.erase(it);
+	}
 }
 
 bool Game::reload(ReloadTypes_t reloadType)
