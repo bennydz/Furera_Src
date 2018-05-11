@@ -165,7 +165,7 @@ class ConfigManager
 		std::string string[LAST_STRING_CONFIG] = {};
 		int32_t integer[LAST_INTEGER_CONFIG] = {};
 		bool boolean[LAST_BOOLEAN_CONFIG] = {};
-		float floating[LAST_DOUBLE_CONFIG] = {};
+		float decimal[LAST_DOUBLE_CONFIG] = {};
 		float floating[LAST_FLOATING_CONFIG] = {};
 
 		bool loaded = false;
