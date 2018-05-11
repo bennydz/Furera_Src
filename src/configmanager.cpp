@@ -77,7 +77,6 @@ bool getGlobalBoolean(lua_State* L, const char* identifier, const bool defaultVa
 	return val != 0;
 }
 
-
 float getGlobalFloat(lua_State* L, const char* identifier, const float defaultValue = 0.0)
 {
 	lua_getglobal(L, identifier);
@@ -167,7 +166,6 @@ bool ConfigManager::load()
 	string[LOCATION] = getGlobalString(L, "location", "");
 	string[MOTD] = getGlobalString(L, "motd", "");
 	string[WORLD_TYPE] = getGlobalString(L, "worldType", "pvp");
-	string[MONSTERLEVEL_PREFIX] = getGlobalString(L, "monsterPrefix", "");
 	string[STORE_IMAGES_URL] = getGlobalString(L, "coinImagesURL", "");
 
 	integer[MAX_PLAYERS] = getGlobalNumber(L, "maxPlayers");
@@ -194,13 +192,6 @@ bool ConfigManager::load()
 	integer[CHECK_EXPIRED_MARKET_OFFERS_EACH_MINUTES] = getGlobalNumber(L, "checkExpiredMarketOffersEachMinutes", 60);
 	integer[MAX_MARKET_OFFERS_AT_A_TIME_PER_PLAYER] = getGlobalNumber(L, "maxMarketOffersAtATimePerPlayer", 100);
 	integer[MAX_PACKETS_PER_SECOND] = getGlobalNumber(L, "maxPacketsPerSecond", 25);
-
-	floating[MONSTERLEVEL_BONUSDMG] = getGlobalFloat(L, "monsterLevelDamage", 0.0);
-	floating[MONSTERLEVEL_BONUSEXP] = getGlobalFloat(L, "monsterLevelExp", 0.0);
-	floating[MONSTERLEVEL_BONUSSPEED] = getGlobalFloat(L, "monsterLevelSpeed", 0.0);
-	floating[MONSTERLEVEL_BONUSHEALTH] = getGlobalFloat(L, "monsterLevelHealth", 0.0);
-	floating[MONSTERLEVEL_BONUSLOOT] = getGlobalFloat(L, "monsterLevelLoot", 0.0);	
-	
 	integer[STORE_COIN_PACKET] = getGlobalNumber(L, "coinPacketSize", 25);
 	integer[LIVE_CAST_PORT] = getGlobalNumber(L, "liveCastPort", 7173);
 	integer[DAY_KILLS_TO_RED] = getGlobalNumber(L, "dayKillsToRedSkull", 3);
@@ -255,10 +246,6 @@ bool ConfigManager::getBoolean(boolean_config_t what) const
 		return false;
 	}
 	return boolean[what];
-	
-
-	
-	
 }
 
 float ConfigManager::getFloat(floating_config_t what) const

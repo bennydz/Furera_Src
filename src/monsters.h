@@ -151,9 +151,6 @@ class MonsterType
 		int32_t defense = 0;
 		int32_t armor = 0;
 
-		uint16_t minLevel = 0;
-		uint16_t maxLevel = 0;		
-		
 		bool canPushItems = false;
 		bool canPushCreatures = false;
 		bool pushable = true;
@@ -185,14 +182,9 @@ class MonsterType
 
 		MonsterInfo info;
 
-		//void createLoot(Container* corpse);
-		//bool createLootContainer(Container* parent, const LootBlock& lootblock);
-		//std::vector<Item*> createLootItem(const LootBlock& lootBlock, bool canRerollLoot = false);
-		
-		void createLoot(Container* corpse, double bonus = 1.0);
-		bool createLootContainer(Container* parent, const LootBlock& lootblock, double bonus = 1.0);
-		std::vector<Item*> createLootItem(const LootBlock& lootBlock, bool canRerollLoot = false, double bonus = 1.0);		
-		
+		void createLoot(Container* corpse);
+		bool createLootContainer(Container* parent, const LootBlock& lootblock);
+		std::vector<Item*> createLootItem(const LootBlock& lootBlock, bool canRerollLoot = false);
 };
 
 class Monsters

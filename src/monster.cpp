@@ -47,20 +47,13 @@ Monster::Monster(MonsterType* mType) :
 	strDescription(asLowerCaseString(mType->nameDescription)),
 	mType(mType)
 {
-	level = uniform_random(mType->info.minLevel, mType->info.maxLevel);
 	defaultOutfit = mType->info.outfit;
 	currentOutfit = mType->info.outfit;
 	skull = mType->info.skull;
 	float multiplier = g_config.getFloat(ConfigManager::RATE_MONSTER_HEALTH);
-//	health = mType->info.health*multiplier;
-//	healthMax = mType->info.healthMax*multiplier;
-//	baseSpeed = mType->info.baseSpeed; 
-	
-    health = mType->info.health + (mType->info.health * (g_config.getFloat(ConfigManager::MONSTERLEVEL_BONUSHEALTH) * level));
-	healthMax = mType->info.healthMax + (mType->info.healthMax * (g_config.getFloat(ConfigManager::MONSTERLEVEL_BONUSHEALTH) * level));
-	baseSpeed = mType->info.baseSpeed + (mType->info.baseSpeed * (g_config.getFloat(ConfigManager::MONSTERLEVEL_BONUSSPEED) * level));	
-	
-
+	health = mType->info.health*multiplier;
+	healthMax = mType->info.healthMax*multiplier;
+	baseSpeed = mType->info.baseSpeed;
 	internalLight = mType->info.light;
 	hiddenHealth = mType->info.hiddenHealth;
 
@@ -1921,8 +1914,7 @@ void Monster::updateLookDirection()
 void Monster::dropLoot(Container* corpse, Creature*)
 {
 	if (corpse && lootDrop) {
-		//mType->createLoot(corpse);
-		mType->createLoot(corpse, g_config.getFloat(ConfigManager::MONSTERLEVEL_BONUSLOOT) * level);
+		mType->createLoot(corpse);
 	}
 }
 

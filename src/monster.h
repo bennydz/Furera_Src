@@ -103,10 +103,6 @@ class Monster final : public Creature
 		bool isAttackable() const final {
 			return mType->info.isAttackable;
 		}
-		
-		uint16_t getLevel() const {
-			return level;
-		}
 
 		bool canPushItems() const {
 			return mType->info.canPushItems;
@@ -214,8 +210,6 @@ class Monster final : public Creature
 		int32_t maxCombatValue = 0;
 		int32_t targetChangeCooldown = 0;
 		int32_t stepDuration = 0;
-		
-		uint16_t level;
 
 		Position masterPos;
 

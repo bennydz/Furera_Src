@@ -1651,12 +1651,6 @@ void Player::addExperience(Creature* source, uint64_t exp, bool sendText/* = fal
 		return;
 	}
 
-	Monster* monster = source ? source->getMonster() : nullptr;
-	if (monster) {
-		double factor = (g_config.getFloat(ConfigManager::MONSTERLEVEL_BONUSEXP) * monster->getLevel());
-		exp += (exp * factor);
-	}	
-	
 	g_events->eventPlayerOnGainExperience(this, source, exp, rawExp);
 	if (exp == 0) {
 		return;
