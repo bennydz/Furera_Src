@@ -524,7 +524,7 @@ void Combat::CombatHealthFunc(Creature* caster, Creature* target, const CombatPa
 	// Monster level damage bonuses
 	Monster* monster = caster ? caster->getMonster() : nullptr;
 	if (monster && damage.primary.value < 0) {
-		double dmgBonus = g_config.getDouble(ConfigManager::MONSTERLEVEL_BONUSDMG);
+		double dmgBonus = g_config.getFloat(ConfigManager::MONSTERLEVEL_BONUSDMG);
 		if (dmgBonus > 0) {
 			damage.primary.value += damage.primary.value * (dmgBonus * monster->getLevel());
 			damage.secondary.value += damage.secondary.value * (dmgBonus * monster->getLevel());
@@ -550,7 +550,7 @@ void Combat::CombatManaFunc(Creature* caster, Creature* target, const CombatPara
 	// Monster level damage bonuses
 	Monster* monster = caster ? caster->getMonster() : nullptr;
 	if (monster && damage.primary.value < 0) {
-		double dmgBonus = g_config.getDouble(ConfigManager::MONSTERLEVEL_BONUSDMG);
+		double dmgBonus = g_config.getFloat(ConfigManager::MONSTERLEVEL_BONUSDMG);
 		if (dmgBonus > 0) {
 			damage.primary.value += damage.primary.value * (dmgBonus * monster->getLevel());
 			damage.secondary.value += damage.secondary.value * (dmgBonus * monster->getLevel());
