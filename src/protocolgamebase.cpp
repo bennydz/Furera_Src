@@ -123,14 +123,6 @@ void ProtocolGameBase::AddCreature(NetworkMessage& msg, const Creature* creature
 		msg.add<uint32_t>(remove);
 		msg.add<uint32_t>(creature->getID());
 		msg.addByte(creatureType);
-
-		if (creatureType == CREATURETYPE_SUMMONPLAYER) {
-			const Creature* master = creature->getMaster();
-			if (master) {
-				msg.add<uint32_t>(master->getID());
-			}
-		}
-
 		msg.addString(creature->getName());
 	}
 
@@ -165,22 +157,23 @@ void ProtocolGameBase::AddCreature(NetworkMessage& msg, const Creature* creature
 
 	if (creatureType == CREATURETYPE_MONSTER) {
 		const Creature* master = creature->getMaster();
+
 		if (master) {
 			const Player* masterPlayer = master->getPlayer();
 			if (masterPlayer) {
-				creatureType = CREATURETYPE_SUMMONPLAYER;
+				if (masterPlayer == player) {
+					creatureType = CREATURETYPE_SUMMON_OWN;
+
+				}
+				else {
+					creatureType = CREATURETYPE_SUMMON_OTHERS;
+
+				}
 			}
 		}
 	}
-
 	msg.addByte(creatureType); // Type (for summons)
 
-	if (creatureType == CREATURETYPE_SUMMONPLAYER) {
-		const Creature* master = creature->getMaster();
-		if (master) {
-			msg.add<uint32_t>(master->getID());
-		}
-	}
 
 	msg.addByte(creature->getSpeechBubble());
 	msg.addByte(0xFF); // MARK_UNMARKED
@@ -268,18 +261,25 @@ void ProtocolGameBase::sendBlessStatus() {
 
 	msg.addByte(0x9C);
 	if (blessCount >= 5) {
-		uint8_t blessFlag = 0;
-		uint8_t maxFlag = (maxBlessings == 8) ? 256 : 64;
-		for (int i = 2; i < maxFlag; i *= 2) {
-			blessFlag += i;
-		}
+		if (player->getProtocolVersion() >= 1120) {
+			uint8_t blessFlag = 0;
+			uint8_t maxFlag = (maxBlessings == 8) ? 256 : 64;
+			for (int i = 2; i < maxFlag; i *= 2) {
+				blessFlag += i;
+			}
 
-		msg.add<uint16_t>(blessFlag-1);
+			msg.add<uint16_t>(blessFlag - 1);
+		} else {
+			msg.add<uint16_t>(0x01);
+		}
 	} else {
 		msg.add<uint16_t>(0x00);
 	}
 
-	msg.addByte((blessCount >= 5) ? 2 : 1); // 1 = Disabled | 2 = normal | 3 = green
+	if (player->getProtocolVersion() >= 1120) {
+		msg.addByte((blessCount >= 5) ? 2 : 1); // 1 = Disabled | 2 = normal | 3 = green
+	}
+
 	writeToOutputBuffer(msg);
 }
 
@@ -444,7 +444,8 @@ void ProtocolGameBase::GetTileDescription(const Tile* tile, NetworkMessage& msg)
 	if (ground) {
 		msg.addItem(ground);
 		count = 1;
-	} else {
+	}
+	else {
 		count = 0;
 	}
 
@@ -453,57 +454,39 @@ void ProtocolGameBase::GetTileDescription(const Tile* tile, NetworkMessage& msg)
 		for (auto it = items->getBeginTopItem(), end = items->getEndTopItem(); it != end; ++it) {
 			msg.addItem(*it);
 
-			if (++count == 10) {
+			count++;
+			if (count == 9 && tile->getPosition() == player->getPosition()) {
+				break;
+			}
+			else if (count == 10) {
 				return;
 			}
 		}
 	}
 
-	if (!loggedIn && tile->getPosition() == player->getPosition()) {
-		bool playerSpawned = false;
-		const CreatureVector *creatures = tile->getCreatures();
-		if (creatures) {
-			for (const Creature *creature : boost::adaptors::reverse(*creatures)) {
-				if (!player->canSeeCreature(creature)) {
-					continue;
-				}
-
-				if (creature == player) {
-					playerSpawned = true;
-				}
-
-				bool known;
-				uint32_t removedKnown;
-				checkCreatureAsKnown(creature->getID(), known, removedKnown);
-				AddCreature(msg, creature, known, removedKnown);
-
-				if (count == 8 && playerSpawned == false) { // player still not spawned and we need to send him too
-					checkCreatureAsKnown(player->getID(), known, removedKnown);
-					AddCreature(msg, player, known, removedKnown);
-					++count;
-				}
-
-				if (++count == 10) {
-					return;
-				}
+	const CreatureVector* creatures = tile->getCreatures();
+	if (creatures) {
+		bool playerAdded = false;
+		for (const Creature* creature : boost::adaptors::reverse(*creatures)) {
+			if (!player->canSeeCreature(creature)) {
+				continue;
 			}
-		}
-	} else {
-		const CreatureVector *creatures = tile->getCreatures();
-		if (creatures) {
-			for (const Creature *creature : boost::adaptors::reverse(*creatures)) {
-				if (!player->canSeeCreature(creature)) {
-					continue;
-				}
 
-				bool known;
-				uint32_t removedKnown;
-				checkCreatureAsKnown(creature->getID(), known, removedKnown);
-				AddCreature(msg, creature, known, removedKnown);
+			if (tile->getPosition() == player->getPosition() && count == 9 && !playerAdded) {
+				creature = player;
+			}
 
-				if (++count == 10) {
-					return;
-				}
+			if (creature->getID() == player->getID()) {
+				playerAdded = true;
+			}
+
+			bool known;
+			uint32_t removedKnown;
+			checkCreatureAsKnown(creature->getID(), known, removedKnown);
+			AddCreature(msg, creature, known, removedKnown);
+
+			if (++count == 10) {
+				return;
 			}
 		}
 	}
@@ -793,8 +776,10 @@ void ProtocolGameBase::sendAddCreature(const Creature* creature, const Position&
 	sendBasicData();
 	sendInventoryClientIds();
 	sendPreyData();
-	player->sendClientCheck();
-	player->sendGameNews();
+	if (player->getProtocolVersion() >= 1130) {
+		player->sendClientCheck();
+		player->sendGameNews();
+	}
 	player->sendIcons();
 }
 

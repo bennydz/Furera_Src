@@ -191,7 +191,7 @@ ReturnValue Combat::canTargetCreature(Player* player, Creature* target)
 		if (player->getZone() == ZONE_PROTECTION) {
 			return RETURNVALUE_YOUMAYNOTATTACKAPERSONWHILEINPROTECTIONZONE;
 		}
-		
+
 		if (target->getZone() == ZONE_PROTECTION) {
 			return RETURNVALUE_YOUMAYNOTATTACKAPERSONINPROTECTIONZONE;
 		}
@@ -486,6 +486,20 @@ void Combat::CombatHealthFunc(Creature* caster, Creature* target, const CombatPa
 {
 	assert(data);
 	CombatDamage damage = *data;
+	if (caster && caster->getPlayer()) {
+		CombatType_t imbuingCombat = COMBAT_NONE;
+		int32_t imbuingDamage = 0;
+
+		g_events->eventPlayerOnCombatSpell(caster->getPlayer(), damage.primary.value, imbuingDamage, imbuingCombat, false);
+		Item* tool = caster->getPlayer()->getWeapon();
+		const Weapon* weapon = g_weapons->getWeapon(tool);
+
+		if (weapon && weapon->getElementType() == COMBAT_NONE) {
+			damage.secondary.type = imbuingCombat;
+			damage.secondary.value = weapon->getElementDamage(caster->getPlayer(), target, tool, imbuingDamage, imbuingCombat);
+		}
+	}
+
 	if (g_game.combatBlockHit(damage, caster, target, params.blockedByShield, params.blockedByArmor, params.itemId != 0)) {
 		return;
 	}
@@ -520,8 +534,7 @@ void Combat::CombatManaFunc(Creature* caster, Creature* target, const CombatPara
 			damage.primary.value /= 2;
 		}
 	}
-
-	if (g_game.combatChangeMana(caster, target, damage.primary.value, damage.origin)) {
+	if (g_game.combatChangeMana(caster, target, damage)) {
 		CombatConditionFunc(caster, target, params, nullptr);
 		CombatDispelFunc(caster, target, params, nullptr);
 	}
@@ -955,13 +968,8 @@ void ValueCallback::getMinMaxValues(Player* player, CombatDamage& damage, bool u
 					}
 				}
 
-				CombatType_t imbuingCombat = COMBAT_NONE;
-				int32_t imbuingDamage = 0;
-
-				g_events->eventPlayerOnCombatSpell(player, attackValue, imbuingDamage, imbuingCombat);
-
-				damage.secondary.type = (imbuingCombat != COMBAT_NONE) ? imbuingCombat : weapon->getElementType();
-				damage.secondary.value = weapon->getElementDamage(player, nullptr, tool, imbuingDamage, imbuingCombat);
+				damage.secondary.type = weapon->getElementType();
+				damage.secondary.value = weapon->getElementDamage(player, nullptr, tool);
 				if (useCharges) {
 					uint16_t charges = tool->getCharges();
 					if (charges != 0) {

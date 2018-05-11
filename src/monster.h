@@ -40,7 +40,6 @@ enum TargetSearchType_t {
 class Monster final : public Creature
 {
 	public:
-	    std::string name, nameDescription, altStrDesc;
 		static Monster* createMonster(const std::string& name);
 		static int32_t despawnRange;
 		static int32_t despawnRadius;
@@ -68,44 +67,15 @@ class Monster final : public Creature
 		void removeList() final;
 		void addList() final;
 
-
-        const std::string& getName() const final {
-            if (!name.empty()) {
-                return name;
-            }
-            return mType->name;
-        }		
-		
-		
-		
-
-		
-        const std::string& getNameDescription() const final {
-            if (nameDescription.empty()) {
-                return mType->nameDescription;
-            }
-            return nameDescription;
-        }		
-		
-
-		
-        std::string getDescription(int32_t) const final {
-            if (!altStrDesc.empty()) {
-                return altStrDesc + '.';
-            }
-            return strDescription + '.';
-        }		
-		
-        void setName(std::string n) {
-            name = n;
-        }
-        void setDescription(std::string desc) {
-            nameDescription = desc;
-        }
-        void setStrDescription(std::string altdesc) {
-            altStrDesc = altdesc;
-        }
- 		
+		const std::string& getName() const final {
+			return mType->name;
+		}
+		const std::string& getNameDescription() const final {
+			return mType->nameDescription;
+		}
+		std::string getDescription(int32_t) const final {
+			return strDescription + '.';
+		}
 
 		CreatureType_t getType() const final {
 			return CREATURETYPE_MONSTER;
@@ -177,7 +147,6 @@ class Monster final : public Creature
 		void onThink(uint32_t interval) final;
 
 		bool challengeCreature(Creature* creature) final;
-		bool convinceCreature(Creature* creature) final;
 
 		void setNormalCreatureLight() final;
 		bool getCombatValues(int32_t& min, int32_t& max) final;
@@ -276,7 +245,6 @@ class Monster final : public Creature
 
 		void onAddCondition(ConditionType_t type) final;
 		void onEndCondition(ConditionType_t type) final;
-		void onCreatureConvinced(const Creature* convincer, const Creature* creature) final;
 
 		bool canUseAttack(const Position& pos, const Creature* target) const;
 		bool canUseSpell(const Position& pos, const Position& targetPos,

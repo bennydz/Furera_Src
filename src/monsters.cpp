@@ -800,13 +800,15 @@ MonsterType* Monsters::loadMonster(const std::string& file, const std::string& m
 				mType->info.isSummonable = attr.as_bool();
 			} else if (strcasecmp(attrName, "rewardboss") == 0) {
 				mType->info.isRewardBoss = attr.as_bool();
+			} else if (strcasecmp(attrName, "boss") == 0) {
+				mType->info.isBoss = attr.as_bool();
 			} else if (strcasecmp(attrName, "attackable") == 0) {
 				mType->info.isAttackable = attr.as_bool();
 			} else if (strcasecmp(attrName, "hostile") == 0) {
 				mType->info.isHostile = attr.as_bool();
 			} else if (strcasecmp(attrName, "pet") == 0) {
-		                mType->info.isPet = attr.as_bool();
-	                } else if (strcasecmp(attrName, "passive") == 0) {
+				mType->info.isPet = attr.as_bool();
+			} else if (strcasecmp(attrName, "passive") == 0) {
 				mType->info.isPassive = attr.as_bool();
 			} else if (strcasecmp(attrName, "illusionable") == 0) {
 				mType->info.isIllusionable = attr.as_bool();
@@ -1304,7 +1306,7 @@ std::vector<std::string> Monsters::getPreyMonsters()
 {
 	std::vector<std::string> monsterList;
 	for (const auto& m : monsters) {
-		if (m.second.info.experience > 0 && m.second.info.isRewardBoss == false && m.second.info.staticAttackChance > 0) {
+		if (m.second.info.experience > 0 && !m.second.info.isRewardBoss && m.second.info.staticAttackChance > 0 && !m.second.info.isBoss) {
 			monsterList.push_back(m.first);
 		}
 	}

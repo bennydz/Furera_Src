@@ -1203,15 +1203,8 @@ void ProtocolGame::sendCreatureType(const Creature* creature, uint8_t creatureTy
 	msg.add<uint32_t>(creature->getID());
 	msg.addByte(creatureType);
 
-	if (player->getOperatingSystem() == CLIENTOS_WINDOWS) {
+	if (player->getOperatingSystem() == CLIENTOS_WINDOWS && player->getProtocolVersion() >= 1120) {
 		msg.addByte(creatureType); // type or any byte idk
-	}
-
-	if (creatureType == CREATURETYPE_SUMMONPLAYER) {
-		const Creature* master = creature->getMaster();
-		if (master) {
-			msg.add<uint32_t>(master->getID());
-		}
 	}
 
 	writeToOutputBuffer(msg);
@@ -1264,7 +1257,9 @@ void ProtocolGame::sendReLoginWindow(uint8_t unfairFightReduction)
 	msg.addByte(0x28);
 	msg.addByte(0x00);
 	msg.addByte(unfairFightReduction);
-	msg.addByte(0x00); //Use death redemption
+	if (version >= 1120) {
+		msg.addByte(0x00); //Use death redemption
+	}
 	writeToOutputBuffer(msg);
 }
 
@@ -2006,16 +2001,18 @@ void ProtocolGame::sendQuestLine(const Quest* quest)
 
 	for (const Mission& mission : quest->getMissions()) {
 		if (mission.isStarted(player)) {
-			msg.add<uint16_t>(quest->getID());
+			if (player->getProtocolVersion() >= 1120){
+				msg.add<uint16_t>(quest->getID());
+			}
 			msg.addString(mission.getName(player));
 			msg.addString(mission.getDescription(player));
 		}
 	}
-	
+
 	if (player->operatingSystem == CLIENTOS_NEW_WINDOWS) {
 		sendQuestTracker();
 	}
-	
+
 	writeToOutputBuffer(msg);
 }
 
@@ -2492,6 +2489,9 @@ void ProtocolGame::sendSpellCooldown(uint8_t spellId, uint32_t time)
 {
 	NetworkMessage msg;
 	msg.addByte(0xA4);
+	if (player->getProtocolVersion() < 1120 && spellId >= 170) {
+		spellId = 150;
+	}
 	msg.addByte(spellId);
 	msg.add<uint32_t>(time);
 	writeToOutputBuffer(msg);
@@ -2536,7 +2536,7 @@ void ProtocolGame::sendUpdatedCoinBalance()
 	writeToOutputBuffer(msg);
 }
 
-void ProtocolGame::sendOpenStore(uint8_t serviceType)
+void ProtocolGame::sendOpenStore(uint8_t)
 {
 	NetworkMessage msg;
 
