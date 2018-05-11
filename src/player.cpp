@@ -1249,9 +1249,9 @@ void Player::onRemoveCreature(Creature* creature, bool isLogout)
 
 void Player::openShopWindow(Npc* npc, const std::list<ShopInfo>& shop)
 {
-	shopItemList = shop;
-	sendShop(npc);
-	sendSaleItemList();
+    shopItemList = shop;
+    sendShop(npc);
+    sendSaleItemList(npc);
 }
 
 bool Player::closeShopWindow(bool sendCloseShopWindow /*= true*/)
@@ -3165,26 +3165,26 @@ void Player::postRemoveNotification(Thing* thing, const Cylinder* newParent, int
 
 bool Player::updateSaleShopList(const Item* item)
 {
-	uint16_t itemId = item->getID();
-	if (itemId != ITEM_GOLD_COIN && itemId != ITEM_PLATINUM_COIN && itemId != ITEM_CRYSTAL_COIN) {
-		auto it = std::find_if(shopItemList.begin(), shopItemList.end(), [itemId](const ShopInfo& shopInfo) { return shopInfo.itemId == itemId && shopInfo.sellPrice != 0; });
-		if (it == shopItemList.end()) {
-			const Container* container = item->getContainer();
-			if (!container) {
-				return false;
-			}
-
-			const auto& items = container->getItemList();
-			return std::any_of(items.begin(), items.end(), [this](const Item* containerItem) {
-				return updateSaleShopList(containerItem);
-			});
-		}
-	}
-
-	if (client) {
-		client->sendSaleItemList(shopItemList);
-	}
-	return true;
+    uint16_t itemId = item->getID();
+    if (itemId != ITEM_GOLD_COIN && itemId != ITEM_PLATINUM_COIN && itemId != ITEM_CRYSTAL_COIN) {
+        auto it = std::find_if(shopItemList.begin(), shopItemList.end(), [itemId](const ShopInfo& shopInfo) { return shopInfo.itemId == itemId && shopInfo.sellPrice != 0; });
+        if (it == shopItemList.end()) {
+            const Container* container = item->getContainer();
+            if (!container) {
+                return false;
+            }
+ 
+            const auto& items = container->getItemList();
+            return std::any_of(items.begin(), items.end(), [this](const Item* containerItem) {
+                return updateSaleShopList(containerItem);
+            });
+        }
+    }
+ 
+    if (client) {
+        client->sendSaleItemList(shopOwner, shopItemList);
+    }
+    return true;
 }
 
 bool Player::hasShopItemForSale(uint32_t itemId, uint8_t subType) const
@@ -4690,6 +4690,32 @@ uint64_t Player::getMoney() const
 	}
 	return moneyCount;
 }
+
+uint64_t Player::getMoney(Npc* npc) const
+{
+    uint64_t cash;
+    setNpcCurrencyId(npc);
+    uint32_t currencyId = getNpcCurrencyId();
+    if (currencyId) {
+        int32_t value;
+        getStorageValue(currencyId, value);
+        cash = (uint64_t)value;
+    }
+    else {
+        cash = getMoney();
+    }
+    return cash;
+}
+ 
+ 
+void Player::setNpcCurrencyId(Npc* npc) const{
+    currencyId = npc->getCurrencyId();
+}
+ 
+uint32_t Player::getNpcCurrencyId() const {
+    return currencyId;
+}
+
 
 size_t Player::getMaxVIPEntries() const
 {

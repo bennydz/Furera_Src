@@ -559,6 +559,12 @@ class Player final : public Creature, public Cylinder
 
 		uint64_t getMoney() const;
 
+        uint64_t getMoney(Npc*) const;
+ 
+        void setNpcCurrencyId(Npc*) const;
+ 
+        uint32_t getNpcCurrencyId() const;
+		
 		//safe-trade functions
 		void setTradeState(tradestate_t state) {
 			tradeState = state;
@@ -1075,6 +1081,11 @@ class Player final : public Creature, public Cylinder
 				client->sendShop(npc, shopItemList);
 			}
 		}
+        void sendSaleItemList(Npc* npc) const {
+            if (client) {
+                client->sendSaleItemList(npc, shopItemList);
+            }
+        }		
 		void sendSaleItemList() const {
 			if (client) {
 				client->sendSaleItemList(shopItemList);
@@ -1454,6 +1465,7 @@ class Player final : public Creature, public Cylinder
 		uint32_t windowTextId = 0;
 		uint32_t editListId = 0;
 		uint32_t manaMax = 0;
+		mutable uint32_t currencyId;
 		int32_t varSkills[SKILL_LAST + 1] = {};
 		int32_t varStats[STAT_LAST + 1] = {};
 		int32_t purchaseCallback = -1;
