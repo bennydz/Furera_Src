@@ -256,14 +256,7 @@ bool ConfigManager::getBoolean(boolean_config_t what) const
 	}
 	return boolean[what];
 	
-double ConfigManager::getDouble(double_config_t what) const
-{
-	if (what >= LAST_DOUBLE_CONFIG) {
-		std::cout << "[Warning - ConfigManager::getDouble] Accessing invalid index: " << what << std::endl;
-		return 0.0;
-	}
-	return floating[what];
-}	
+
 	
 	
 }

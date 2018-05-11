@@ -147,7 +147,7 @@ class ConfigManager
 		const std::string& getString(string_config_t what) const;
 		int32_t getNumber(integer_config_t what) const;
 		bool getBoolean(boolean_config_t what) const;
-		double getDouble(double_config_t what) const;
+		double getFloat(double_config_t what) const;
 		float getFloat(floating_config_t what) const;
 
 		std::string const& setConfigFileLua(const std::string& what) {
@@ -160,7 +160,7 @@ class ConfigManager
 
 	private:
 
-
+     	static double getGlobalFloat(lua_State* L, const char* identifier, const double defaultValue = 0.0);
 	
 		std::string configFileLua = { "config.lua" };
 		std::string string[LAST_STRING_CONFIG] = {};
