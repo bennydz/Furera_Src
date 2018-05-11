@@ -25,6 +25,7 @@
 #include "weapons.h"
 #include "configmanager.h"
 #include "events.h"
+#include "monster.h"
 
 extern Game g_game;
 extern Weapons* g_weapons;
@@ -519,6 +520,17 @@ void Combat::CombatHealthFunc(Creature* caster, Creature* target, const CombatPa
 		}
 	}
 
+	
+	// Monster level damage bonuses
+	Monster* monster = caster ? caster->getMonster() : nullptr;
+	if (monster && damage.primary.value < 0) {
+		double dmgBonus = g_config.getDouble(ConfigManager::MONSTERLEVEL_BONUSDMG);
+		if (dmgBonus > 0) {
+			damage.primary.value += damage.primary.value * (dmgBonus * monster->getLevel());
+			damage.secondary.value += damage.secondary.value * (dmgBonus * monster->getLevel());
+		}
+	}	
+	
 	if (g_game.combatChangeHealth(caster, target, damage)) {
 		CombatConditionFunc(caster, target, params, &damage);
 		CombatDispelFunc(caster, target, params, nullptr);
@@ -534,6 +546,17 @@ void Combat::CombatManaFunc(Creature* caster, Creature* target, const CombatPara
 			damage.primary.value /= 2;
 		}
 	}
+	
+	// Monster level damage bonuses
+	Monster* monster = caster ? caster->getMonster() : nullptr;
+	if (monster && damage.primary.value < 0) {
+		double dmgBonus = g_config.getDouble(ConfigManager::MONSTERLEVEL_BONUSDMG);
+		if (dmgBonus > 0) {
+			damage.primary.value += damage.primary.value * (dmgBonus * monster->getLevel());
+			damage.secondary.value += damage.secondary.value * (dmgBonus * monster->getLevel());
+		}
+	}	
+	
 	if (g_game.combatChangeMana(caster, target, damage)) {
 		CombatConditionFunc(caster, target, params, nullptr);
 		CombatDispelFunc(caster, target, params, nullptr);
