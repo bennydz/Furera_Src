@@ -207,11 +207,11 @@ bool ConfigManager::load()
 	integer[MAX_MARKET_OFFERS_AT_A_TIME_PER_PLAYER] = getGlobalNumber(L, "maxMarketOffersAtATimePerPlayer", 100);
 	integer[MAX_PACKETS_PER_SECOND] = getGlobalNumber(L, "maxPacketsPerSecond", 25);
 
-	decimal[MONSTERLEVEL_BONUSDMG] = getGlobalDouble(L, "monsterLevelDamage", 0.0);
-	decimal[MONSTERLEVEL_BONUSEXP] = getGlobalDouble(L, "monsterLevelExp", 0.0);
-	decimal[MONSTERLEVEL_BONUSSPEED] = getGlobalDouble(L, "monsterLevelSpeed", 0.0);
-	decimal[MONSTERLEVEL_BONUSHEALTH] = getGlobalDouble(L, "monsterLevelHealth", 0.0);
-	decimal[MONSTERLEVEL_BONUSLOOT] = getGlobalDouble(L, "monsterLevelLoot", 0.0);	
+	floating[MONSTERLEVEL_BONUSDMG] = getGlobalDouble(L, "monsterLevelDamage", 0.0);
+	floating[MONSTERLEVEL_BONUSEXP] = getGlobalDouble(L, "monsterLevelExp", 0.0);
+	floating[MONSTERLEVEL_BONUSSPEED] = getGlobalDouble(L, "monsterLevelSpeed", 0.0);
+	floating[MONSTERLEVEL_BONUSHEALTH] = getGlobalDouble(L, "monsterLevelHealth", 0.0);
+	floating[MONSTERLEVEL_BONUSLOOT] = getGlobalDouble(L, "monsterLevelLoot", 0.0);	
 	
 	integer[STORE_COIN_PACKET] = getGlobalNumber(L, "coinPacketSize", 25);
 	integer[LIVE_CAST_PORT] = getGlobalNumber(L, "liveCastPort", 7173);
@@ -274,7 +274,7 @@ double ConfigManager::getDouble(double_config_t what) const
 		std::cout << "[Warning - ConfigManager::getDouble] Accessing invalid index: " << what << std::endl;
 		return 0.0;
 	}
-	return decimal[what];
+	return floating[what];
 }	
 	
 	
