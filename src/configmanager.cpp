@@ -207,11 +207,11 @@ bool ConfigManager::load()
 	integer[MAX_MARKET_OFFERS_AT_A_TIME_PER_PLAYER] = getGlobalNumber(L, "maxMarketOffersAtATimePerPlayer", 100);
 	integer[MAX_PACKETS_PER_SECOND] = getGlobalNumber(L, "maxPacketsPerSecond", 25);
 
-	floating[MONSTERLEVEL_BONUSDMG] = getGlobalDouble(L, "monsterLevelDamage", 0.0);
-	floating[MONSTERLEVEL_BONUSEXP] = getGlobalDouble(L, "monsterLevelExp", 0.0);
-	floating[MONSTERLEVEL_BONUSSPEED] = getGlobalDouble(L, "monsterLevelSpeed", 0.0);
-	floating[MONSTERLEVEL_BONUSHEALTH] = getGlobalDouble(L, "monsterLevelHealth", 0.0);
-	floating[MONSTERLEVEL_BONUSLOOT] = getGlobalDouble(L, "monsterLevelLoot", 0.0);	
+	floating[MONSTERLEVEL_BONUSDMG] = getGlobalFloat(L, "monsterLevelDamage", 0.0);
+	floating[MONSTERLEVEL_BONUSEXP] = getGlobalFloat(L, "monsterLevelExp", 0.0);
+	floating[MONSTERLEVEL_BONUSSPEED] = getGlobalFloat(L, "monsterLevelSpeed", 0.0);
+	floating[MONSTERLEVEL_BONUSHEALTH] = getGlobalFloat(L, "monsterLevelHealth", 0.0);
+	floating[MONSTERLEVEL_BONUSLOOT] = getGlobalFloat(L, "monsterLevelLoot", 0.0);	
 	
 	integer[STORE_COIN_PACKET] = getGlobalNumber(L, "coinPacketSize", 25);
 	integer[LIVE_CAST_PORT] = getGlobalNumber(L, "liveCastPort", 7173);
