@@ -77,18 +77,6 @@ bool getGlobalBoolean(lua_State* L, const char* identifier, const bool defaultVa
 	return val != 0;
 }
 
-double ConfigManager::getGlobalDouble(lua_State* L, const char* identifier, const double defaultValue)
-{
-	lua_getglobal(L, identifier);
-	if (!lua_isnumber(L, -1)) {
-		return defaultValue;
-	}
-
-	double val = lua_tonumber(L, -1);
-	lua_pop(L, 1);
-	return val;
-}
-
 
 float getGlobalFloat(lua_State* L, const char* identifier, const float defaultValue = 0.0)
 {
