@@ -160,7 +160,7 @@ class ConfigManager
 
 	private:
 
-     	static double getGlobalDouble(lua_State* L, const char* identifier, const double defaultValue = 0.0);
+
 	
 		std::string configFileLua = { "config.lua" };
 		std::string string[LAST_STRING_CONFIG] = {};
