@@ -47,7 +47,7 @@ uint32_t Monsters::getLootRandom()
 }
 
 //void MonsterType::createLoot(Container* corpse)
-void MonsterType::createLoot(Container* corpse, double bonus)
+void MonsterType::createLoot(Container* corpse, float bonus)
 {
 	if (g_config.getNumber(ConfigManager::RATE_LOOT) == 0) {
 		corpse->startDecaying();
@@ -133,7 +133,7 @@ void MonsterType::createLoot(Container* corpse, double bonus)
 }
 
 //std::vector<Item*> MonsterType::createLootItem(const LootBlock& lootBlock, bool canRerollLoot)
-std::vector<Item*> MonsterType::createLootItem(const LootBlock& lootBlock, bool canRerollLoot, double bonus)
+std::vector<Item*> MonsterType::createLootItem(const LootBlock& lootBlock, bool canRerollLoot, float bonus)
 {
 	int32_t itemCount = 0;
 	uint8_t tryTimes = 1;
@@ -144,7 +144,7 @@ std::vector<Item*> MonsterType::createLootItem(const LootBlock& lootBlock, bool 
 	for (int i = 0; i < tryTimes; i++) {
 		uint32_t randvalue = Monsters::getLootRandom();
 	
-	double modifier = randvalue * bonus;
+	float modifier = randvalue * bonus;
 	// make sure no underflow happens
 	if (static_cast<int64_t>(randvalue) - modifier < 0) {
 		randvalue = 0;
@@ -223,7 +223,7 @@ std::vector<Item*> MonsterType::createLootItem(const LootBlock& lootBlock, bool 
 }
 
 // bool MonsterType::createLootContainer(Container* parent, const LootBlock& lootblock)
-bool MonsterType::createLootContainer(Container* parent, const LootBlock& lootblock, double bonus)
+bool MonsterType::createLootContainer(Container* parent, const LootBlock& lootblock, float bonus)
 {
 	auto it = lootblock.childLoot.begin(), end = lootblock.childLoot.end();
 	if (it == end) {
