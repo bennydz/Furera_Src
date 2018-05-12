@@ -46,7 +46,7 @@ uint32_t Monsters::getLootRandom()
 	return uniform_random(0, MAX_LOOTCHANCE) / g_config.getNumber(ConfigManager::RATE_LOOT);
 }
 
-void MonsterType::createLoot(Container* corpse)
+void MonsterType::createLoot(Container* corpse, double bonus)
 {
 	if (g_config.getNumber(ConfigManager::RATE_LOOT) == 0) {
 		corpse->startDecaying();
@@ -82,7 +82,8 @@ void MonsterType::createLoot(Container* corpse)
 		}
 
 		for (auto it = info.lootItems.rbegin(), end = info.lootItems.rend(); it != end; ++it) {
-			auto itemList = createLootItem(*it, canRerollLoot);
+			//auto itemList = createLootItem(*it, canRerollLoot);
+			auto itemList = createLootItem(*it, bonus);
 			if (itemList.empty()) {
 				continue;
 			}
@@ -90,7 +91,7 @@ void MonsterType::createLoot(Container* corpse)
 			for (Item* item : itemList) {
 				//check containers
 				if (Container* container = item->getContainer()) {
-					if (!createLootContainer(container, *it)) {
+					if (!createLootContainer(container, *it, bonus)) {
 						delete container;
 						continue;
 					}
@@ -130,7 +131,7 @@ void MonsterType::createLoot(Container* corpse)
 	corpse->startDecaying();
 }
 
-std::vector<Item*> MonsterType::createLootItem(const LootBlock& lootBlock, bool canRerollLoot)
+std::vector<Item*> MonsterType::createLootItem(const LootBlock& lootBlock, bool canRerollLoot, double bonus)
 {
 	int32_t itemCount = 0;
 	uint8_t tryTimes = 1;
@@ -140,6 +141,15 @@ std::vector<Item*> MonsterType::createLootItem(const LootBlock& lootBlock, bool 
 
 	for (int i = 0; i < tryTimes; i++) {
 		uint32_t randvalue = Monsters::getLootRandom();
+		
+	double modifier = randvalue * bonus;
+	// make sure no underflow happens
+	if (static_cast<int64_t>(randvalue) - modifier < 0) {
+		randvalue = 0;
+	} else {
+		randvalue = randvalue - modifier;
+	}		
+		
 		if (randvalue < lootBlock.chance) {
 			if (Item::items[lootBlock.id].stackable) {
 				itemCount = randvalue % lootBlock.countmax + 1;
@@ -210,7 +220,7 @@ std::vector<Item*> MonsterType::createLootItem(const LootBlock& lootBlock, bool 
 	return itemList;
 }
 
-bool MonsterType::createLootContainer(Container* parent, const LootBlock& lootblock)
+bool MonsterType::createLootContainer(Container* parent, const LootBlock& lootblock, double bonus)
 {
 	auto it = lootblock.childLoot.begin(), end = lootblock.childLoot.end();
 	if (it == end) {
@@ -218,7 +228,7 @@ bool MonsterType::createLootContainer(Container* parent, const LootBlock& lootbl
 	}
 
 	for (; it != end && parent->size() < parent->capacity(); ++it) {
-		auto itemList = createLootItem(*it);
+		auto itemList = createLootItem(*it, bonus);
 		for (Item* tmpItem : itemList) {
 			if (Container* container = tmpItem->getContainer()) {
 				if (!createLootContainer(container, *it)) {
@@ -711,6 +721,10 @@ MonsterType* Monsters::loadMonster(const std::string& file, const std::string& m
 		}
 	}
 
+	
+
+	
+	
 	if (!mType) {
 		mType = &monsters[asLowerCaseString(monsterName)];
 	}
@@ -792,6 +806,26 @@ MonsterType* Monsters::loadMonster(const std::string& file, const std::string& m
 		}
 	}
 
+
+	if ((node = monsterNode.child("level"))) {
+		if ((attr = node.attribute("min"))) {
+			mType->info.minLevel = pugi::cast<uint16_t>(attr.value());
+
+		} else {
+			std::cout << "[Error - Monsters::loadMonster] Missing level min. " << file << std::endl;
+
+		}
+
+		if ((attr = node.attribute("max"))) {
+			mType->info.maxLevel = pugi::cast<uint16_t>(attr.value());
+
+		} else {
+			std::cout << "[Error - Monsters::loadMonster] Missing level max. " << file << std::endl;
+
+		}
+	}	
+	
+	
 	if ((node = monsterNode.child("flags"))) {
 		for (auto flagNode : node.children()) {
 			attr = flagNode.first_attribute();

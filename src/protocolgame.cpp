@@ -37,6 +37,7 @@
 #include "scheduler.h"
 #include "databasetasks.h"
 #include "modules.h"
+#include "monster.h"
 
 extern Game g_game;
 extern ConfigManager g_config;
