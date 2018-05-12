@@ -131,7 +131,7 @@ void MonsterType::createLoot(Container* corpse, double bonus)
 	corpse->startDecaying();
 }
 
-std::vector<Item*> MonsterType::createLootItem(const LootBlock& lootBlock, bool canRerollLoot, double bonus)
+std::vector<Item*> MonsterType::createLootItem(const LootBlock& lootBlock, double bonus)
 {
 	int32_t itemCount = 0;
 	uint8_t tryTimes = 1;
