@@ -153,10 +153,6 @@ bool Npc::loadFromXml()
 		baseSpeed = 100;
 	}
 
-    if ((attr = npcNode.attribute("currency"))) {
-        currency = pugi::cast<uint32_t>(attr.value());
-    }
-	
 	if ((attr = npcNode.attribute("walkinterval"))) {
 		walkTicks = pugi::cast<uint32_t>(attr.value());
 	}

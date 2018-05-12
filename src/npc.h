@@ -121,10 +121,6 @@ class Npc final : public Creature
 			return walkTicks > 0;
 		}
 
-	    uint32_t getCurrencyId() const {
-            return currency;
-        }
-		
 		void setID() final {
 			if (id == 0) {
 				id = npcAutoID++;
@@ -238,7 +234,6 @@ class Npc final : public Creature
 		Position masterPos;
 
 		uint32_t walkTicks;
-		uint32_t currency;
 		int32_t focusCreature;
 		int32_t masterRadius;
 

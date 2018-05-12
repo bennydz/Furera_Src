@@ -1430,156 +1430,124 @@ Item* Game::findItemOfType(Cylinder* cylinder, uint16_t itemId,
 
 bool Game::removeMoney(Cylinder* cylinder, uint64_t money, uint32_t flags /*= 0*/)
 {
-    if (cylinder == nullptr) {
-        return false;
-    }
- 
-    if (money == 0) {
-        return true;
-    }
-    uint32_t currencyId = 0;
-    Player* player;
-    if (Creature* creature = cylinder->getCreature()) {
-        if (Player* p = creature->getPlayer()) {
-            currencyId = p->getNpcCurrencyId();
-            player = p;
-        }
-    }
-    if (!currencyId) {
-        std::vector<Container*> containers;
- 
-        std::multimap<uint32_t, Item*> moneyMap;
-        uint64_t moneyCount = 0;
- 
-        for (size_t i = cylinder->getFirstIndex(), j = cylinder->getLastIndex(); i < j; ++i) {
-            Thing* thing = cylinder->getThing(i);
-            if (!thing) {
-                continue;
-            }
- 
-            Item* item = thing->getItem();
-            if (!item) {
-                continue;
-            }
- 
-            Container* container = item->getContainer();
-            if (container) {
-                containers.push_back(container);
-            }
-            else {
-                const uint32_t worth = item->getWorth();
-                if (worth != 0) {
-                    moneyCount += worth;
-                    moneyMap.emplace(worth, item);
-                }
-            }
-        }
- 
-        size_t i = 0;
-        while (i < containers.size()) {
-            Container* container = containers[i++];
-            for (Item* item : container->getItemList()) {
-                Container* tmpContainer = item->getContainer();
-                if (tmpContainer) {
-                    containers.push_back(tmpContainer);
-                }
-                else {
-                    const uint32_t worth = item->getWorth();
-                    if (worth != 0) {
-                        moneyCount += worth;
-                        moneyMap.emplace(worth, item);
-                    }
-                }
-            }
-        }
- 
-        if (moneyCount < money) {
-            return false;
-        }
- 
-        for (const auto& moneyEntry : moneyMap) {
-            Item* item = moneyEntry.second;
-            if (moneyEntry.first < money) {
-                internalRemoveItem(item);
-                money -= moneyEntry.first;
-            }
-            else if (moneyEntry.first > money) {
-                const uint32_t worth = moneyEntry.first / item->getItemCount();
-                const uint32_t removeCount = (money / worth) + 1;
-                addMoney(cylinder, (worth * removeCount) - money, flags);
-                internalRemoveItem(item, removeCount);
-                break;
-            }
-            else {
-                internalRemoveItem(item);
-                break;
-            }
-        }
-    }
-    else {
-        int32_t value;
-        player->getStorageValue(currencyId, value);
-        if (value < money) {
-            return false;
-        }
-        player->addStorageValue(currencyId, value - money);
-    }
-    return true;
+	if (cylinder == nullptr) {
+		return false;
+	}
+
+	if (money == 0) {
+		return true;
+	}
+
+	std::vector<Container*> containers;
+
+	std::multimap<uint32_t, Item*> moneyMap;
+	uint64_t moneyCount = 0;
+
+	for (size_t i = cylinder->getFirstIndex(), j = cylinder->getLastIndex(); i < j; ++i) {
+		Thing* thing = cylinder->getThing(i);
+		if (!thing) {
+			continue;
+		}
+
+		Item* item = thing->getItem();
+		if (!item) {
+			continue;
+		}
+
+		Container* container = item->getContainer();
+		if (container) {
+			containers.push_back(container);
+		} else {
+			const uint32_t worth = item->getWorth();
+			if (worth != 0) {
+				moneyCount += worth;
+				moneyMap.emplace(worth, item);
+			}
+		}
+	}
+
+	size_t i = 0;
+	while (i < containers.size()) {
+		Container* container = containers[i++];
+		for (Item* item : container->getItemList()) {
+			Container* tmpContainer = item->getContainer();
+			if (tmpContainer) {
+				containers.push_back(tmpContainer);
+			} else {
+				const uint32_t worth = item->getWorth();
+				if (worth != 0) {
+					moneyCount += worth;
+					moneyMap.emplace(worth, item);
+				}
+			}
+		}
+	}
+
+	if (moneyCount < money) {
+		return false;
+	}
+
+	for (const auto& moneyEntry : moneyMap) {
+		Item* item = moneyEntry.second;
+		if (moneyEntry.first < money) {
+			internalRemoveItem(item);
+			money -= moneyEntry.first;
+		} else if (moneyEntry.first > money) {
+			const uint32_t worth = moneyEntry.first / item->getItemCount();
+			const uint32_t removeCount = std::ceil(money / static_cast<double>(worth));
+
+			addMoney(cylinder, (worth * removeCount) - money, flags);
+			internalRemoveItem(item, removeCount);
+			break;
+		} else {
+			internalRemoveItem(item);
+			break;
+		}
+	}
+	return true;
 }
 
 void Game::addMoney(Cylinder* cylinder, uint64_t money, uint32_t flags /*= 0*/)
 {
-    if (money == 0) {
-        return;
-    }
- 
-    if (Creature* creature = cylinder->getCreature()) {
-        if (Player* player = creature->getPlayer()) {
-            if(uint32_t currencyId = player->getNpcCurrencyId()){
-                int32_t value;
-                player->getStorageValue(currencyId, value);
-                player->addStorageValue(currencyId, value + money);
-                return;
-            }
-        }
-    }
- 
-    uint32_t crystalCoins = money / 10000;
-    money -= crystalCoins * 10000;
-    while (crystalCoins > 0) {
-        const uint16_t count = std::min<uint32_t>(100, crystalCoins);
- 
-        Item* remaindItem = Item::CreateItem(ITEM_CRYSTAL_COIN, count);
- 
-        ReturnValue ret = internalAddItem(cylinder, remaindItem, INDEX_WHEREEVER, flags);
-        if (ret != RETURNVALUE_NOERROR) {
-            internalAddItem(cylinder->getTile(), remaindItem, INDEX_WHEREEVER, FLAG_NOLIMIT);
-        }
- 
-        crystalCoins -= count;
-    }
- 
-    uint16_t platinumCoins = money / 100;
-    if (platinumCoins != 0) {
-        Item* remaindItem = Item::CreateItem(ITEM_PLATINUM_COIN, platinumCoins);
- 
-        ReturnValue ret = internalAddItem(cylinder, remaindItem, INDEX_WHEREEVER, flags);
-        if (ret != RETURNVALUE_NOERROR) {
-            internalAddItem(cylinder->getTile(), remaindItem, INDEX_WHEREEVER, FLAG_NOLIMIT);
-        }
- 
-        money -= platinumCoins * 100;
-    }
- 
-    if (money != 0) {
-        Item* remaindItem = Item::CreateItem(ITEM_GOLD_COIN, money);
- 
-        ReturnValue ret = internalAddItem(cylinder, remaindItem, INDEX_WHEREEVER, flags);
-        if (ret != RETURNVALUE_NOERROR) {
-            internalAddItem(cylinder->getTile(), remaindItem, INDEX_WHEREEVER, FLAG_NOLIMIT);
-        }
-    }
- 
+	if (money == 0) {
+		return;
+	}
+
+	uint32_t crystalCoins = money / 10000;
+	money -= crystalCoins * 10000;
+	while (crystalCoins > 0) {
+		const uint16_t count = std::min<uint32_t>(100, crystalCoins);
+
+		Item* remaindItem = Item::CreateItem(ITEM_CRYSTAL_COIN, count);
+
+		ReturnValue ret = internalAddItem(cylinder, remaindItem, INDEX_WHEREEVER, flags);
+		if (ret != RETURNVALUE_NOERROR) {
+			internalAddItem(cylinder->getTile(), remaindItem, INDEX_WHEREEVER, FLAG_NOLIMIT);
+		}
+
+		crystalCoins -= count;
+	}
+
+	uint16_t platinumCoins = money / 100;
+	if (platinumCoins != 0) {
+		Item* remaindItem = Item::CreateItem(ITEM_PLATINUM_COIN, platinumCoins);
+
+		ReturnValue ret = internalAddItem(cylinder, remaindItem, INDEX_WHEREEVER, flags);
+		if (ret != RETURNVALUE_NOERROR) {
+			internalAddItem(cylinder->getTile(), remaindItem, INDEX_WHEREEVER, FLAG_NOLIMIT);
+		}
+
+		money -= platinumCoins * 100;
+	}
+
+	if (money != 0) {
+		Item* remaindItem = Item::CreateItem(ITEM_GOLD_COIN, money);
+
+		ReturnValue ret = internalAddItem(cylinder, remaindItem, INDEX_WHEREEVER, flags);
+		if (ret != RETURNVALUE_NOERROR) {
+			internalAddItem(cylinder->getTile(), remaindItem, INDEX_WHEREEVER, FLAG_NOLIMIT);
+		}
+	}
 }
 
 Item* Game::transformItem(Item* item, uint16_t newId, int32_t newCount /*= -1*/)
