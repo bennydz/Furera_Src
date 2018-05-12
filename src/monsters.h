@@ -189,7 +189,7 @@ class MonsterType
 		
 		void createLoot(Container* corpse, double bonus = 1.0);
 		bool createLootContainer(Container* parent, const LootBlock& lootblock, double bonus = 1.0);
-		std::vector<Item*> createLootItem(const LootBlock& lootBlock, bool canRerollLoot = false, double bonus = 1.0);		
+		std::vector<Item*> createLootItem(const LootBlock& lootBlock, double bonus = 1.0);		
 };
 
 class Monsters
