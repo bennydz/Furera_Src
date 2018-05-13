@@ -82,8 +82,8 @@ void MonsterType::createLoot(Container* corpse, double bonus)
 		}
 
 		for (auto it = info.lootItems.rbegin(), end = info.lootItems.rend(); it != end; ++it) {
-			//auto itemList = createLootItem(*it, canRerollLoot);
-			auto itemList = createLootItem(*it, bonus);
+			auto itemList = createLootItem(*it, canRerollLoot, bonus);
+			//auto itemList = createLootItem(*it, bonus);
 			if (itemList.empty()) {
 				continue;
 			}
@@ -131,7 +131,7 @@ void MonsterType::createLoot(Container* corpse, double bonus)
 	corpse->startDecaying();
 }
 
-std::vector<Item*> MonsterType::createLootItem(const LootBlock& lootBlock, double bonus)
+std::vector<Item*> MonsterType::createLootItem(const LootBlock& lootBlock, bool canRerollLoot, double bonus)
 {
 	int32_t itemCount = 0;
 	uint8_t tryTimes = 1;
